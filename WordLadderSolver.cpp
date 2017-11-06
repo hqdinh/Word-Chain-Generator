@@ -21,8 +21,7 @@ unsigned long hashf(string s);
 
 //**************************** WordLadderSolverImpl **********************************
 
-struct Bucket
-{
+struct Bucket{
 	Bucket(string w) : word(w), next(nullptr), visited(false), root(nullptr) {}
 	string word;
 	bool visited;
@@ -31,8 +30,7 @@ struct Bucket
 	vector<Bucket*> derivative; // contains all Buckets that can be transformed from this Bucket
 };
 
-class WordLadderSolverImpl
-{
+class WordLadderSolverImpl{
 public:
 	WordLadderSolverImpl();
 	~WordLadderSolverImpl();
@@ -52,19 +50,15 @@ private:
 	queue<Bucket*> q; //this stores to-be-processed words
 };
 
-WordLadderSolverImpl::WordLadderSolverImpl()
-{
+WordLadderSolverImpl::WordLadderSolverImpl(){
 	for (int i = 0; i < HASH_TABLE_SIZE; i++)
 		dict[i] = nullptr;
 }
 
-WordLadderSolverImpl::~WordLadderSolverImpl()
-{
+WordLadderSolverImpl::~WordLadderSolverImpl(){
 	Bucket *p;
-	for (int i = 0; i < HASH_TABLE_SIZE; i++)
-	{
-		while (dict[i] != nullptr)
-		{
+	for (int i = 0; i < HASH_TABLE_SIZE; i++){
+		while (dict[i] != nullptr){
 			p = dict[i];
 			dict[i] = dict[i]->next;
 			delete p;
@@ -76,41 +70,34 @@ void WordLadderSolverImpl::formLadder(Bucket* bucket, vector<string> &ladder)
 {
 	stack<string> temp;
 	Bucket* p = bucket;
-	while (p != nullptr)
-	{
+	while (p != nullptr){
 		temp.push(p->word); // this holds ladder in reverse order because we are going from end to start
 		p = p->root;
 	}
 
 	string s;
-	while (!temp.empty())
-	{
+	while (!temp.empty())	{
 		s = temp.top();
 		ladder.push_back(s);
 		temp.pop();
 	}
 }
 
-void WordLadderSolverImpl::generate(string root, Bucket* h)
-{
-
+void WordLadderSolverImpl::generate(string root, Bucket* h){
 	unsigned int i;
 	char ch;
 
 	// Transformation by letter replacement
 	for (i = 0; i < root.size(); i++)
-		for (ch = 'a'; ch <= 'z'; ch++)
-		{
+		for (ch = 'a'; ch <= 'z'; ch++)	{
 			string s = root;
 			s[i] = ch;
 			generateHelper(s, h);
 		}
 	
 	// Transformation by letter insertion
-	for (i = 0; i <= root.size(); i++)
-	{
-		for (ch = 'a'; ch <= 'z'; ch++)
-		{
+	for (i = 0; i <= root.size(); i++){
+		for (ch = 'a'; ch <= 'z'; ch++)	{
 			string s = root;
 			s.insert(i, 1, ch);
 			generateHelper(s, h);
@@ -118,24 +105,21 @@ void WordLadderSolverImpl::generate(string root, Bucket* h)
 	}
 
 	// Transformation by swapping adjacent letters
-	for (i = 0; i < root.size() - 1; i++)
-	{
+	for (i = 0; i < root.size() - 1; i++){
 		string s = root;
 		swap(s[i], s[i + 1]);
 		generateHelper(s, h);
 	}
 
 	// Transformation by letter deletion
-	for (i = 0; i < root.size(); i++)
-	{
+	for (i = 0; i < root.size(); i++){
 		string s = root;
 		s.erase(i, 1); 
 		generateHelper(s, h);
 	}
 }
 
-void WordLadderSolverImpl::generateHelper(string str, Bucket* h)
-{
+void WordLadderSolverImpl::generateHelper(string str, Bucket* h){
 	Bucket* n = lookupDict(str);
 	if (n != nullptr && n != h)
 		h->derivative.push_back(n);
@@ -144,13 +128,10 @@ void WordLadderSolverImpl::generateHelper(string str, Bucket* h)
 
 void WordLadderSolverImpl::cleanUpDict() // O(N)
 {
-	for (int i = 0; i < HASH_TABLE_SIZE; i++)
-	{
-		if (dict[i] != nullptr)
-		{
+	for (int i = 0; i < HASH_TABLE_SIZE; i++){
+		if (dict[i] != nullptr)	{
 			Bucket* p = dict[i];
-			while (p != nullptr)
-			{
+			while (p != nullptr){
 				p->visited = false;
 				p->root = nullptr;
 				p = p->next;
@@ -165,8 +146,7 @@ Bucket* WordLadderSolverImpl::lookupDict(string theWord)
 	int k = hashf(theWord);
 	
 	Bucket* p = dict[k];
-	while (p != nullptr)
-	{
+	while (p != nullptr){
 		if (p->word == theWord)
 			break;
 		p = p->next;
@@ -176,21 +156,17 @@ Bucket* WordLadderSolverImpl::lookupDict(string theWord)
 
 void WordLadderSolverImpl::createWordList(const vector<string>& words)
 {
-	for (string word : words)
-	{
+	for (string word : words){
 		removeNonLetters(word);
 		if (word != "")
 			addToDict(word);
 	}
 
 	// Map all words and their derivatives 
-	for (int i = 0; i < HASH_TABLE_SIZE; i++)
-	{
-		if (dict[i] != nullptr)
-		{
+	for (int i = 0; i < HASH_TABLE_SIZE; i++){
+		if (dict[i] != nullptr)	{
 			Bucket* p = dict[i];
-			while (p != nullptr)
-			{
+			while (p != nullptr){
 				generate(p->word, p);
 				p = p->next;
 			}
@@ -198,18 +174,15 @@ void WordLadderSolverImpl::createWordList(const vector<string>& words)
 	}
 }
 
-void WordLadderSolverImpl::addToDict(string s)
-{
+void WordLadderSolverImpl::addToDict(string s){
 	int k = hashf(s);
-	if (dict[k] == nullptr)
-	{
+	if (dict[k] == nullptr)	{
 		dict[k] = new Bucket(s);
 		return;
 	}
 
 	Bucket* p = dict[k];
-	while (p->next != nullptr)
-	{
+	while (p->next != nullptr){
 		if (p->word == s)
 			return;
 		p = p->next;
@@ -217,8 +190,7 @@ void WordLadderSolverImpl::addToDict(string s)
 	p->next = new Bucket(s);
 }
 
-int WordLadderSolverImpl::buildLadder(string start, string end, vector<string>& ladder)
-{
+int WordLadderSolverImpl::buildLadder(string start, string end, vector<string>& ladder){
 	ladder.clear();
 	removeNonLetters(start);
 	removeNonLetters(end);
@@ -235,18 +207,14 @@ int WordLadderSolverImpl::buildLadder(string start, string end, vector<string>& 
 	Bucket* p = lookupDict(start);
 	p->visited = true;
 	q.push(p);
-	while (!q.empty()) //
-	{
-		if (q.front()->word == end)
-		{
+	while (!q.empty()) {
+		if (q.front()->word == end){
 			formLadder(q.front(), ladder);
 			break;
 		}
 		// Push everything in derivative into queue q
-		for (int i = 0; i < q.front()->derivative.size(); i++)
-		{
-			if (!q.front()->derivative[i]->visited)
-			{ 
+		for (int i = 0; i < q.front()->derivative.size(); i++){
+			if (!q.front()->derivative[i]->visited)	{ 
 				q.push(q.front()->derivative[i]);
 				q.front()->derivative[i]->visited = true;
 				q.front()->derivative[i]->root = q.front();
@@ -264,13 +232,10 @@ int WordLadderSolverImpl::buildLadder(string start, string end, vector<string>& 
 	return -1;
 }
 	
-void removeNonLetters(string& s)
-{
+void removeNonLetters(string& s){
 	string::iterator to = s.begin();
-	for (char ch : s)
-	{
-		if (isalpha(ch))
-		{
+	for (char ch : s){
+		if (isalpha(ch)){
 			*to = tolower(ch);
 			to++;
 		}
@@ -278,8 +243,7 @@ void removeNonLetters(string& s)
 	s.erase(to, s.end());  // chop off everything from "to" to end.
 } 
 
-unsigned long hashf(string s)
-{
+unsigned long hashf(string s){
 	char *str = &s[0];
 	unsigned long hash = 5381;
 	int c;
